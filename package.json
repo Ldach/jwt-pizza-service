@@ -4,6 +4,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "run": "cd src && node index.js",
+    "test": "jest",
     "start": "cd src && node index.js"
   },
   "license": "MIT",
