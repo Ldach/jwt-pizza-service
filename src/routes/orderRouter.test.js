@@ -5,8 +5,8 @@ const request = require('supertest');
 const app = require('../service');
 
 ////////////////////////////////////
+/*
 const { Role, DB } = require('../database/database.js');
-
 function randomName() {
   return Math.random().toString(36).substring(2, 12);
 }
@@ -21,6 +21,7 @@ async function createAdminUser() {
   user.password = 'toomanysecrets';
   return user;
 }
+  */
 //////////////////////////////////////////////////
 
 
