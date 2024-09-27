@@ -1,3 +1,6 @@
+if (process.env.VSCODE_INSPECTOR_OPTIONS) {
+  jest.setTimeout(60 * 1000 * 5); // 5 minutes
+}
 const request = require('supertest');
 const app = require('../service');
 
@@ -63,12 +66,7 @@ test('failed logout', async () => {
 });
 
 test('update user', async () => {
-  const newAdmin = await createAdminUser();
-  const adminPass = await newAdmin.password;
-  const adminName = await newAdmin.name;
-  const adminEmail = await newAdmin.email;
-
-  const admin = await {name: adminName, email: adminEmail, password: adminPass};
+  const admin = await createAdminUser();
 
   const loginRes = await request(app).put('/api/auth').send(admin);
   const tempStr = '/api/auth/:' + loginRes.body.user.id;

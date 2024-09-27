@@ -1,3 +1,7 @@
+if (process.env.VSCODE_INSPECTOR_OPTIONS) {
+    jest.setTimeout(60 * 1000 * 5); // 5 minutes
+  }
+  
 const request = require('supertest');
 const app = require('../service');
 
@@ -42,5 +46,11 @@ test('get orders', async () => {
     const logoutRes = await request(app).get('/api/order').set('Authorization', `Bearer ${testUserAuthToken}`).send(testUser);
     expect(logoutRes.status).toBe(200);
     expect(logoutRes.body.dinerId).toBe(testUserUser.id);
+  });
+
+  test('create order', async () => {
+    const testOrder = {franchiseId: 1, storeId: 1, items: [{ menuId: 1, description: "Veggie", price: 0.05 }]};
+    const logoutRes = await request(app).post('/api/order').set('Content-Type', 'application/json').set('Authorization', `Bearer ${testUserAuthToken}`).send(testOrder);
+    expect(logoutRes.status).toBe(200);
   });
 
