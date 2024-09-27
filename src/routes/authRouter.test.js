@@ -1,6 +1,4 @@
-if (process.env.VSCODE_INSPECTOR_OPTIONS) {
-  jest.setTimeout(60 * 1000 * 5); // 5 minutes
-}
+jest.setTimeout(60 * 1000 * 5); // 5 minutes
 const request = require('supertest');
 const app = require('../service');
 
@@ -29,6 +27,7 @@ const fakeUser = { name: 'fake diner', email: 'fake@fake.com', password: 'b'};
 const fakeRegister = { name: 'fake Register'};
 let testUserAuthToken;
 let testUserUser;
+let admin;
 
 beforeAll(async () => {
   testUser.email = Math.random().toString(36).substring(2, 12) + '@test.com';
@@ -66,15 +65,22 @@ test('failed logout', async () => {
 });
 
 test('update user', async () => {
-  const admin = await createAdminUser();
+
+  admin = await createAdminUser();
+  let newinfo = { password: 'replaced'};
+  newinfo.email = Math.random().toString(36).substring(2, 12) + '@test.com';
+  newinfo.password = randomName();
 
   const loginRes = await request(app).put('/api/auth').send(admin);
-  const tempStr = '/api/auth/:' + loginRes.body.user.id;
+  const tempStr = '/api/auth/' + loginRes.body.user.id;
+  const tempAuth = await loginRes.body.token;
 
-  const updateRes = await request(app).put(tempStr).set('Authorization', `Bearer ${loginRes.body.token}`).send(loginRes.body.user);
+  const updateRes = await request(app).put(tempStr).set('Content-Type', 'application/json').set('Authorization', `Bearer ${tempAuth}`).send(newinfo);
 
-  expect(updateRes.status).toBe(500);
+  expect(updateRes.status).toBe(200);
+  expect(updateRes.body.email).toMatch(newinfo.email);
 }); 
+
 
 test('logout', async () => {
   const logoutRes = await request(app).delete('/api/auth').set('Authorization', `Bearer ${testUserAuthToken}`).send(testUser);
