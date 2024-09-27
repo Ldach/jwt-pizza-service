@@ -105,3 +105,53 @@ test('get users franchise', async () => {
     expect(deleteeRes.body.message).toBe("franchise deleted");
 
   });
+
+  test('create store', async () => {
+    admin = await createAdminUser();
+
+    const loginRes = await request(app).put('/api/auth').send(admin);
+    const tempAuth = await loginRes.body.token;
+
+    let newFranchise = {name: "replace", admins: [{email: admin.email}]}
+    newFranchise.name =randomName();
+    newFranchise.admins.email = admin.email;
+
+     
+    const franchiseRes = await request(app).post('/api/franchise/').set('Authorization', `Bearer ${tempAuth}`).send(newFranchise);
+    let newStore = {franchiseId: franchiseRes.body.id, name: "replace"}
+    newStore.name =randomName();
+    newFranchise.admins.email = admin.email;
+
+    const tempStr = '/api/franchise/' + franchiseRes.body.id+ '/store';
+    const storeRes = (await request(app).post(tempStr).set('Authorization', `Bearer ${tempAuth}`).send(newStore));
+
+    expect(storeRes.status).toBe(200);
+  });
+
+  test('delete store', async () => {
+    admin = await createAdminUser();
+
+    const loginRes = await request(app).put('/api/auth').send(admin);
+    const tempAuth = await loginRes.body.token;
+
+    let newFranchise = {name: "replace", admins: [{email: admin.email}]}
+    newFranchise.name =randomName();
+    newFranchise.admins.email = admin.email;
+
+     
+    const franchiseRes = await request(app).post('/api/franchise/').set('Authorization', `Bearer ${tempAuth}`).send(newFranchise);
+    let newStore = {franchiseId: franchiseRes.body.id, name: "replace"}
+    newStore.name =randomName();
+    newFranchise.admins.email = admin.email;
+
+    const tempStr = '/api/franchise/' + franchiseRes.body.id+ '/store';
+    const storeRes = (await request(app).post(tempStr).set('Authorization', `Bearer ${tempAuth}`).send(newStore));
+
+    expect(storeRes.status).toBe(200);
+
+    const tempStr2 = tempStr  + '/'+storeRes.body.id;
+    const deleteStoreRes = await request(app).delete(tempStr2).set('Authorization', `Bearer ${tempAuth}`);
+    
+    expect(deleteStoreRes.status).toBe(200);
+    expect(deleteStoreRes.body.message).toBe("store deleted");
+  });
