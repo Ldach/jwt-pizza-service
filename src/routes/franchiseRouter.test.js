@@ -41,6 +41,12 @@ test('get franchise', async () => {
   expect(franchiseRes.status).toBe(200);
 });
 
+test('bad endpoint franchise', async () => {
+    const franchiseRes = await request(app).get('/api/notfranchise');
+    expect(franchiseRes.status).toBe(404);
+    expect(franchiseRes.body.message).toMatch("unknown endpoint")
+});
+
 
 test('get users franchise', async () => {
     admin = await createAdminUser();
@@ -83,4 +89,25 @@ test('get users franchise', async () => {
     const franchiseRes = await request(app).post('/api/franchise/').set('Authorization', `Bearer ${tempAuth}`).send(newFranchise);
 
     expect(franchiseRes.status).toBe(404);
+  });
+
+  test('delete franchise', async () => {
+    admin = await createAdminUser();
+
+    const loginRes = await request(app).put('/api/auth').send(admin);
+    const tempAuth = await loginRes.body.token;
+
+    let newFranchise = {name: "replace", admins: [{email: admin.email}]}
+    newFranchise.name =randomName();
+    newFranchise.admins.email = admin.email;
+    
+    const franchiseRes = await request(app).post('/api/franchise/').set('Authorization', `Bearer ${tempAuth}`).send(newFranchise);
+    expect(franchiseRes.status).toBe(200);
+
+    const tempStr = '/api/franchise/' + franchiseRes.body.id;
+    const deleteeRes = await request(app).delete(tempStr).set('Authorization', `Bearer ${tempAuth}`);
+    
+    expect(deleteeRes.status).toBe(200);
+    expect(deleteeRes.body.message).toBe("franchise deleted");
+
   });
