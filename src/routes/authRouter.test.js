@@ -62,16 +62,9 @@ test('failed logout', async () => {
   expect(logoutRes.body.message).toMatch('unauthorized');
 });
 
+
 test('logout', async () => {
-  const newAdmin = await createAdminUser();
-  const adminPass = await newAdmin.password;
-  const adminName = await newAdmin.name;
-  const adminEmail = await newAdmin.email;
-
-  const admin = await {name: adminName, email: adminEmail, password: adminPass};
-
-  const loginRes = await request(app).put('/api/auth').send(admin);
-  const tempStr = '/api/auth/:' + loginRes.body.user.id;
-  const logoutRes = await request(app).put(tempStr).send(admin);
-  expect(logoutRes.body.message).toMatch('Logout Successful');
+  const logoutRes = await request(app).delete('/api/auth').set('Authorization', `Bearer ${testUserAuthToken}`).send(testUser);
+  expect(logoutRes.status).toBe(200);
+  expect(logoutRes.body.message).toMatch('logout successful');
 });
