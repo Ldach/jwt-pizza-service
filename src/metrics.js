@@ -1,44 +1,62 @@
-const MetricBuilder = require('metric-builder');
-const config = require('../config.js'); 
+const config = require('./config.js');
 
-let requestMetrics = {
-  GET: 0,
-  POST: 0,
-  PUT: 0,
-  DELETE: 0,
-  total_requests: 0,
-};
+class Metrics {
+  constructor() {
+    this.totalRequests = 0;
+    this.totalGetRequests = 0;
+    this.totalPostRequests = 0;
+    this.totalPutRequests = 0;
+    this.totalDeleteRequests = 0;
 
-function trackRequest(req, res, next) {
-  const method = req.method;
-  if (method === 'GET' || method === 'POST' || method === 'PUT' || method === 'DELETE') {
-    requestMetrics[method]++;
+    const timer = setInterval(() => {
+      this.sendMetricToGrafana('request', 'all', 'total', this.totalRequests);
+      this.sendMetricToGrafana('request', 'get', 'total', this.totalGetRequests);
+      this.sendMetricToGrafana('request', 'post', 'total', this.totalPostRequests);
+      this.sendMetricToGrafana('request', 'put', 'total', this.totalPutRequests);
+      this.sendMetricToGrafana('request', 'delete', 'total', this.totalDeleteRequests);
+    }, 10000);
+    timer.unref();
   }
-  requestMetrics.total_requests++;
-  next();
+
+  incrementRequests() {
+    this.totalRequests++;
+  }
+
+  incrementGetRequests() {
+    this.totalGetRequests++;
+  }
+
+  incrementPostRequests() {
+    this.totalPostRequests++;
+  }
+
+  incrementPutRequests() {
+    this.totalPutRequests++;
+  }
+
+  incrementDeleteRequests() {
+    this.totalDeleteRequests++;
+  }
+
+  sendMetricToGrafana(metricPrefix, httpMethod, metricName, metricValue) {
+    const metric = `${metricPrefix},source=${config.source},method=${httpMethod} ${metricName}=${metricValue}`;
+    fetch(`${config.url}`, {
+      method: 'POST',
+      body: metric,
+      headers: { Authorization: `Bearer ${config.userId}:${config.apiKey}` },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          console.error('Failed to push metrics data to Grafana');
+        } else {
+          console.log(`Pushed ${metric}`);
+        }
+      })
+      .catch((error) => {
+        console.error('Error pushing metrics:', error);
+      });
+  }
 }
 
-function sendMetricsToGrafana(metrics) {
-  console.log('Sending metrics to Grafana:', metrics);
-}
-
-function sendMetricsPeriodically(period) {
-  setInterval(() => {
-    try {
-      const buf = new MetricBuilder();
-      
-      buf.addMetric('http_requests', requestMetrics.GET, 'method=GET');
-      buf.addMetric('http_requests', requestMetrics.POST, 'method=POST');
-      buf.addMetric('http_requests', requestMetrics.PUT, 'method=PUT');
-      buf.addMetric('http_requests', requestMetrics.DELETE, 'method=DELETE');
-      buf.addMetric('http_requests', requestMetrics.total_requests, 'method=total_requests');
-
-      const metrics = buf.toString('\n');
-      sendMetricsToGrafana(metrics);
-    } catch (error) {
-      console.log('Error sending metrics', error);
-    }
-  }, period);
-}
-
-module.exports = { trackRequest, sendMetricsPeriodically };
+const metrics = new Metrics();
+module.exports = metrics;
