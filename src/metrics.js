@@ -1,4 +1,4 @@
-const config = require('./config.json');
+/*const config = require('./config.json');
 
 const os = require('os');
 
@@ -67,6 +67,7 @@ class Metrics {
         console.error('Error pushing metrics:', error);
       });
   }
+  */
 }
 
 const metrics = new Metrics();
