@@ -50,6 +50,7 @@ async function setAuthUser(req, res, next) {
         req.user.isRole = (role) => !!req.user.roles.find((r) => r.role === role);
       }
     } catch {
+      metrics.incrementBadAuth();
       req.user = null;
     }
   }
