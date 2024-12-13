@@ -45,11 +45,7 @@ orderRouter.endpoints = [
 orderRouter.get(
   '/menu',
   asyncHandler(async (req, res) => {
-    const startTime = new Date();
     res.send(await DB.getMenu());
-    const endTime = new Date();
-    const latency = endTime - startTime;
-    metrics.setServiceLatency(latency);
   })
 );
 
@@ -58,16 +54,11 @@ orderRouter.put(
   '/menu',
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
-    const startTime = new Date();
     if (!req.user.isRole(Role.Admin)) {
       throw new StatusCodeError('unable to add menu item', 403);
     }
-
     const addMenuItemReq = req.body;
     await DB.addMenuItem(addMenuItemReq);
-    const endTime = new Date();
-    const latency = endTime - startTime;
-    metrics.setServiceLatency(latency);
     res.send(await DB.getMenu());
   })
 );
@@ -77,11 +68,7 @@ orderRouter.get(
   '/',
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
-    const startTime = new Date();
     res.json(await DB.getOrders(req.user, req.query.page));
-    const endTime = new Date();
-    const latency = endTime - startTime;
-    metrics.setServiceLatency(latency);
   })
 );
 
