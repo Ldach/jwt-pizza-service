@@ -1,4 +1,4 @@
-/*
+
 const config = require('./config.js');
 
 
@@ -41,11 +41,11 @@ class Metrics {
   }
 
   sendMetricToGrafana(metricPrefix, httpMethod, metricName, metricValue) {
-    const metric = `${metricPrefix},source=${config.source},method=${httpMethod} ${metricName}=${metricValue}`;
-    fetch(`${config.url}`, {
-      method: 'post',
+    const metric = `${metricPrefix},source=${metricsConfig.source},method=${httpMethod} ${metricName}=${metricValue}`;
+    fetch(`${metricsConfig.url}`, {
+      method: 'POST',
       body: metric,
-      headers: { Authorization: `Bearer ${config.userId}:${config.apiKey}` },
+      headers: { Authorization: `Bearer ${metricsConfig.userId}:${metricsConfig.apiKey}` },
     })
       .then((response) => {
         if (!response.ok) {
@@ -62,8 +62,8 @@ class Metrics {
 
 const metrics = new Metrics();
 module.exports = metrics;
-*/
 
+/*
 require('dotenv').config({ path: './var.env' });
 
 class Metrics {
@@ -136,3 +136,4 @@ class Metrics {
 
 const metrics = new Metrics();
 module.exports = metrics;
+*/
