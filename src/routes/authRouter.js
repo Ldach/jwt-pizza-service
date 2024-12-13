@@ -54,6 +54,10 @@ async function setAuthUser(req, res, next) {
       req.user = null;
     }
   }
+  else
+  {
+    metrics.incrementBadAuth();
+  }
   next();
 }
 
@@ -91,6 +95,9 @@ authRouter.put(
   asyncHandler(async (req, res) => {
     const { email, password } = req.body;
     const user = await DB.getUser(email, password);
+    if (!user) {
+      metrics.incrementBadAuth();
+    }
     const auth = await setAuth(user);
     metrics.incrementActiveUsers() 
     res.json({ user: user, token: auth });
