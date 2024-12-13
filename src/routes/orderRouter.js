@@ -48,7 +48,7 @@ orderRouter.get(
     const startTime = new Date();
     res.send(await DB.getMenu());
     const endTime = new Date();
-    const latency = endTime - start Time;
+    const latency = endTime - startTime;
     metrics.setServiceLatency(latency);
   })
 );
