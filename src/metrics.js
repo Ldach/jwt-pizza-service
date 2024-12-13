@@ -20,7 +20,7 @@ class Metrics {
     this.MemoryUsage = 0;
 
     this.totalPizzasSold = 0;
-    this.totalPizzasFailed = 0;
+    this.totalOrdersFailed = 0;
     this.totalRevenue = 0;
 
     this.serviceLatency = 0;
@@ -44,7 +44,7 @@ class Metrics {
       this.sendMetricToGrafana('live', 'memory', 'usage', this.MemoryUsage);
 
       this.sendMetricToGrafana('total', 'sold', 'pizzas', this.totalPizzasSold);
-      this.sendMetricToGrafana('total', 'failed', 'pizzas', this.totalPizzasFailed);
+      this.sendMetricToGrafana('total', 'failed', 'pizzas', this.totalOrdersFailed);
       this.sendMetricToGrafana('total', 'revenue', 'revenue', this.totalRevenue);
 
       this.sendMetricToGrafana('ongoing', 'service', 'latency', this.serviceLatency);
@@ -102,11 +102,12 @@ class Metrics {
   }
 
 
-  incrementPizzasSold() {
-    this.totalPizzasSold++;
+  addPizzasSold(num) {
+    this.totalPizzasSold += num;
   }
-  incrementPizzasFailed() {
-    this.totalPizzasFailed++;
+  
+  incrementOrderFailed() {
+    this.totalOrdersFailed++;
   }
 
   increaseRevenue(amount) {

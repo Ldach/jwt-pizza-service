@@ -79,6 +79,15 @@ orderRouter.post(
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
     const orderReq = req.body;
+
+    let totalPrice = 0;
+    let numPizzas = 0;
+
+    orderReq.items.forEach(item => {
+      totalPrice += item.price;
+      numPizzas += 1;
+    });
+
     const order = await DB.addDinerOrder(req.user, orderReq);
     const r = await fetch(`${config.factory.url}/api/order`, {
       method: 'POST',
@@ -87,8 +96,12 @@ orderRouter.post(
     });
     const j = await r.json();
     if (r.ok) {
+      metrics.addPizzasSold(numPizzas);
+      metrics.increaseRevenue(totalPrice);
       res.send({ order, jwt: j.jwt, reportUrl: j.reportUrl });
+
     } else {
+      metrics.incrementOrderFailed();
       res.status(500).send({ message: 'Failed to fulfill order at factory', reportUrl: j.reportUrl });
     }
   })
