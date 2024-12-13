@@ -78,12 +78,16 @@ authRouter.authenticateToken = (req, res, next) => {
 authRouter.post(
   '/',
   asyncHandler(async (req, res) => {
+    const startTime = new Date();
     const { name, email, password } = req.body;
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'name, email, and password are required' });
     }
     const user = await DB.addUser({ name, email, password, roles: [{ role: Role.Diner }] });
     const auth = await setAuth(user); 
+    const endTime = new Date();
+    const latency = endTime - startTime;
+    metrics.setServiceLatency(latency);
     res.json({ user: user, token: auth });
   })
 );
@@ -92,10 +96,14 @@ authRouter.post(
 authRouter.put(
   '/',
   asyncHandler(async (req, res) => {
+    const startTime = new Date();
     const { email, password } = req.body;
     const user = await DB.getUser(email, password);
     const auth = await setAuth(user);
     metrics.incrementActiveUsers();
+    const endTime = new Date();
+    const latency = endTime - startTime;
+    metrics.setServiceLatency(latency);
     res.json({ user: user, token: auth });
   })
 );
@@ -105,8 +113,12 @@ authRouter.delete(
   '/',
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
+    const startTime = new Date();
     metrics.decrementActiveUsers();
     clearAuth(req);
+    const endTime = new Date();
+    const latency = endTime - startTime;
+    metrics.setServiceLatency(latency);
     res.json({ message: 'logout successful' });
   })
 );
@@ -116,6 +128,7 @@ authRouter.put(
   '/:userId',
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
+    const startTime = new Date();
     const { email, password } = req.body;
     const userId = Number(req.params.userId);
     const user = req.user;
@@ -124,6 +137,9 @@ authRouter.put(
     }
 
     const updatedUser = await DB.updateUser(userId, email, password);
+    const endTime = new Date();
+    const latency = endTime - startTime;
+    metrics.setServiceLatency(latency);
     res.json(updatedUser);
   })
 );
