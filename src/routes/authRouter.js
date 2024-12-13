@@ -46,7 +46,7 @@ async function setAuthUser(req, res, next) {
     try {
       if (await DB.isLoggedIn(token)) {
         // Check the database to make sure the token is valid.
-        metrics.incrementGoodAuth()
+        metrics.incrementGoodAuth();
         req.user = jwt.verify(token, config.jwtSecret);
         req.user.isRole = (role) => !!req.user.roles.find((r) => r.role === role);
       }
@@ -65,12 +65,11 @@ async function setAuthUser(req, res, next) {
 // Authenticate token
 authRouter.authenticateToken = (req, res, next) => {
   if (!req.user) {
-    metrics.incrementBadAuth()
     return res.status(401).send({ message: 'unauthorized' });
   }
   else
   {
-    metrics.incrementGoodAuth()
+    metrics.incrementGoodAuth();
   }
   next();
 };
@@ -84,8 +83,7 @@ authRouter.post(
       return res.status(400).json({ message: 'name, email, and password are required' });
     }
     const user = await DB.addUser({ name, email, password, roles: [{ role: Role.Diner }] });
-    const auth = await setAuth(user);
-    metrics.incrementActiveUsers() 
+    const auth = await setAuth(user); 
     res.json({ user: user, token: auth });
   })
 );
@@ -96,11 +94,8 @@ authRouter.put(
   asyncHandler(async (req, res) => {
     const { email, password } = req.body;
     const user = await DB.getUser(email, password);
-    if (!user) {
-      metrics.incrementBadAuth();
-    }
     const auth = await setAuth(user);
-    metrics.incrementActiveUsers() 
+    metrics.incrementActiveUsers();
     res.json({ user: user, token: auth });
   })
 );
@@ -143,7 +138,6 @@ async function clearAuth(req) {
   const token = readAuthToken(req);
   if (token) {
     await DB.logoutUser(token);
-    metrics.decrementActiveUsers();
   }
 }
 
