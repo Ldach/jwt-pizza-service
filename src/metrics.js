@@ -1,5 +1,6 @@
 
 const config = require('./config.js');
+const os = require('os');
 
 
 class Metrics {
@@ -26,6 +27,8 @@ class Metrics {
     this.pizzaLatency = 0;
 
     const timer = setInterval(() => {
+      this.getCpuUsagePercentage();
+      this.getMemoryUsagePercentage();
       this.sendMetricToGrafana('request', 'all', 'total', this.totalRequests);
       this.sendMetricToGrafana('request', 'get', 'total', this.totalGetRequests);
       this.sendMetricToGrafana('request', 'post', 'total', this.totalPostRequests);
@@ -84,12 +87,20 @@ class Metrics {
     this.totalBadAuthAttempt++;
   }
 
-  getCpuUsage(amount) {
-    this.CpuUsage = amount;
+
+  getCpuUsagePercentage() {
+    const cpuUsage = os.loadavg()[0] / os.cpus().length;
+    this.CpuUsage = cpuUsage.toFixed(2) * 100;
   }
-  getMemoryUsage(amount) {
-    this.MemoryUsage = amount;
+  
+  getMemoryUsagePercentage() {
+    const totalMemory = os.totalmem();
+    const freeMemory = os.freemem();
+    const usedMemory = totalMemory - freeMemory;
+    const memoryUsage = (usedMemory / totalMemory) * 100;
+    this.MemoryUsage = memoryUsage.toFixed(2);
   }
+
 
   incrementPizzasSold() {
     this.totalPizzasSold++;
