@@ -59,7 +59,12 @@ async function setAuthUser(req, res, next) {
 // Authenticate token
 authRouter.authenticateToken = (req, res, next) => {
   if (!req.user) {
+    metrics.incrementBadAuth()
     return res.status(401).send({ message: 'unauthorized' });
+  }
+  else
+  {
+    metrics.incrementGoodAuth()
   }
   next();
 };
@@ -74,6 +79,7 @@ authRouter.post(
     }
     const user = await DB.addUser({ name, email, password, roles: [{ role: Role.Diner }] });
     const auth = await setAuth(user);
+    metrics.incrementActiveUsers() 
     res.json({ user: user, token: auth });
   })
 );
@@ -85,6 +91,7 @@ authRouter.put(
     const { email, password } = req.body;
     const user = await DB.getUser(email, password);
     const auth = await setAuth(user);
+    metrics.incrementActiveUsers() 
     res.json({ user: user, token: auth });
   })
 );
@@ -96,6 +103,7 @@ authRouter.delete(
   asyncHandler(async (req, res) => {
     clearAuth(req);
     res.json({ message: 'logout successful' });
+    metrics.decrementActiveUsers();
   })
 );
 
