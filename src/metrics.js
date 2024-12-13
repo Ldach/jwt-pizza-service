@@ -40,7 +40,7 @@ class Metrics {
       this.sendMetricToGrafana('auth', 'success', 'attempt', this.totalGoodAuthAttempt);
       this.sendMetricToGrafana('auth', 'failed', 'attempt', this.totalBadAuthAttempt);
 
-      this.sendMetricToGrafana('live', 'CPU', 'usage', this.totalCpuUsage);
+      this.sendMetricToGrafana('live', 'CPU', 'percentage', this.totalCpuUsage);
       this.sendMetricToGrafana('live', 'memory', 'usage', this.MemoryUsage);
 
       this.sendMetricToGrafana('total', 'sold', 'pizzas', this.totalPizzasSold);
