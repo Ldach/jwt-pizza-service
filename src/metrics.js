@@ -1,5 +1,4 @@
 const config = require('./config.js');
-const fetch = require('node-fetch');
 
 class Metrics {
   constructor() {
