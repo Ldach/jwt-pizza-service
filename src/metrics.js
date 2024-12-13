@@ -41,7 +41,7 @@ class Metrics {
   sendMetricToGrafana(metricPrefix, httpMethod, metricName, metricValue) {
     const metric = `${metricPrefix},source=${config.source},method=${httpMethod} ${metricName}=${metricValue}`;
     fetch(`${config.url}`, {
-      method: 'POST',
+      method: 'post',
       body: metric,
       headers: { Authorization: `Bearer ${config.userId}:${config.apiKey}` },
     })
