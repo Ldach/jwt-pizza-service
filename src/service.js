@@ -6,14 +6,14 @@ const version = require('./version.json');
 const config = require('./config.js');
 
 const metrics = require('./metrics.js'); 
-const logger = require('./logger.js');
+const logger = require('./logger');
 
 const app = express();
 
 app.use(express.json());
+app.use(logger.httpLogger);
 app.use(setAuthUser);
 
-app.use(logger.httpLogger);
 
 app.use((req, res, next) => {
   metrics.incrementRequests();
