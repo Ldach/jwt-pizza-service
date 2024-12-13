@@ -105,7 +105,7 @@ class Metrics {
   addPizzasSold(num) {
     this.totalPizzasSold += num;
   }
-  
+
   incrementOrderFailed() {
     this.totalOrdersFailed++;
   }
@@ -114,11 +114,11 @@ class Metrics {
     this.totalRevenue += amount;
   }
 
-  getServiceLatency(amount) {
+  setServiceLatency(amount) {
     this.serviceLatency = amount;
   }
 
-  getPizzaLatency(amount){
+  setPizzaLatency(amount){
     this.pizzaLatency = amount;
   }
 

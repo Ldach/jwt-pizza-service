@@ -78,6 +78,7 @@ orderRouter.post(
   '/',
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
+    const startTime = new Date();
     const orderReq = req.body;
 
     let totalPrice = 0;
@@ -95,6 +96,10 @@ orderRouter.post(
       body: JSON.stringify({ diner: { id: req.user.id, name: req.user.name, email: req.user.email }, order }),
     });
     const j = await r.json();
+    const endTime = new Date();
+    const latency = endTime - startTime;
+    metrics.setPizzaLatency(latency);
+
     if (r.ok) {
       metrics.addPizzasSold(numPizzas);
       metrics.increaseRevenue(totalPrice);
