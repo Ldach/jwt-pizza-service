@@ -41,11 +41,12 @@ class Metrics {
   }
 
   sendMetricToGrafana(metricPrefix, httpMethod, metricName, metricValue) {
-    const metric = `${metricPrefix},source=${metricsConfig.source},method=${httpMethod} ${metricName}=${metricValue}`;
-    fetch(`${metricsConfig.url}`, {
+    const { metrics } = config;
+    const metric = `${metricPrefix},source=${metrics.source},method=${httpMethod} ${metricName}=${metricValue}`;
+    fetch(`${metrics.url}`, {
       method: 'POST',
       body: metric,
-      headers: { Authorization: `Bearer ${metricsConfig.userId}:${metricsConfig.apiKey}` },
+      headers: { Authorization: `Bearer ${metrics.userId}:${metrics.apiKey}` },
     })
       .then((response) => {
         if (!response.ok) {
