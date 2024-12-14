@@ -6,7 +6,9 @@ const version = require('./version.json');
 const config = require('./config.js');
 
 const metrics = require('./metrics.js'); 
-const logger = require('./logger');
+const Logger = require('pizza-logger');
+const logger = new Logger(config);
+app.use(logger.httpLogger);
 
 const app = express();
 
