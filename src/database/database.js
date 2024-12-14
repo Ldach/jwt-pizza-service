@@ -4,6 +4,10 @@ const config = require('../config.js');
 const { StatusCodeError } = require('../endpointHelper.js');
 const { Role } = require('../model/model.js');
 const dbModel = require('./dbModel.js');
+const config = require('../config.js');
+const Logger = require('pizza-logger');
+const logger = new Logger(config);
+
 class DB {
   constructor() {
     this.initialized = this.initializeDatabase();
@@ -13,6 +17,7 @@ class DB {
     const connection = await this.getConnection();
     try {
       const rows = await this.query(connection, `SELECT * FROM menu`);
+      logger.dbLogger(`SELECT * FROM menu`);
       return rows;
     } finally {
       connection.end();
@@ -23,6 +28,7 @@ class DB {
     const connection = await this.getConnection();
     try {
       const addResult = await this.query(connection, `INSERT INTO menu (title, description, image, price) VALUES (?, ?, ?, ?)`, [item.title, item.description, item.image, item.price]);
+      logger.dbLogger(`INSERT INTO menu (title, description, image, price) VALUES (?, ?, ?, ?)`);
       return { ...item, id: addResult.insertId };
     } finally {
       connection.end();
@@ -41,10 +47,12 @@ class DB {
           case Role.Franchisee: {
             const franchiseId = await this.getID(connection, 'name', role.object, 'franchise');
             await this.query(connection, `INSERT INTO userRole (userId, role, objectId) VALUES (?, ?, ?)`, [userId, role.role, franchiseId]);
+            logger.dbLogger(`INSERT INTO userRole (userId, role, objectId) VALUES (?, ?, ?)`);
             break;
           }
           default: {
             await this.query(connection, `INSERT INTO userRole (userId, role, objectId) VALUES (?, ?, ?)`, [userId, role.role, 0]);
+            logger.dbLogger(`INSERT INTO userRole (userId, role, objectId) VALUES (?, ?, ?)`);
             break;
           }
         }
@@ -59,12 +67,14 @@ class DB {
     const connection = await this.getConnection();
     try {
       const userResult = await this.query(connection, `SELECT * FROM user WHERE email=?`, [email]);
+      logger.dbLogger(`SELECT * FROM user WHERE email=?`);
       const user = userResult[0];
       if (!user || !(await bcrypt.compare(password, user.password))) {
         throw new StatusCodeError('unknown user', 404);
       }
 
       const roleResult = await this.query(connection, `SELECT * FROM userRole WHERE userId=?`, [user.id]);
+      logger.dbLogger(`SELECT * FROM userRole WHERE userId=?`);
       const roles = roleResult.map((r) => {
         return { objectId: r.objectId || undefined, role: r.role };
       });
@@ -89,6 +99,7 @@ class DB {
       if (params.length > 0) {
         const query = `UPDATE user SET ${params.join(', ')} WHERE id=${userId}`;
         await this.query(connection, query);
+        logger.dbLogger(query);
       }
       return this.getUser(email, password);
     } finally {
@@ -101,6 +112,7 @@ class DB {
     const connection = await this.getConnection();
     try {
       await this.query(connection, `INSERT INTO auth (token, userId) VALUES (?, ?)`, [token, userId]);
+      logger.dbLogger(`INSERT INTO auth (token, userId) VALUES (?, ?)`);
     } finally {
       connection.end();
     }
@@ -111,6 +123,7 @@ class DB {
     const connection = await this.getConnection();
     try {
       const authResult = await this.query(connection, `SELECT userId FROM auth WHERE token=?`, [token]);
+      logger.dbLogger(`SELECT userId FROM auth WHERE token=?`);
       return authResult.length > 0;
     } finally {
       connection.end();
@@ -122,6 +135,7 @@ class DB {
     const connection = await this.getConnection();
     try {
       await this.query(connection, `DELETE FROM auth WHERE token=?`, [token]);
+      logger.dbLogger(`DELETE FROM auth WHERE token=?`);
     } finally {
       connection.end();
     }
