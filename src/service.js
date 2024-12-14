@@ -8,7 +8,6 @@ const config = require('./config.js');
 const metrics = require('./metrics.js'); 
 const Logger = require('pizza-logger');
 const logger = new Logger(config);
-app.use(logger.httpLogger);
 
 const app = express();
 
